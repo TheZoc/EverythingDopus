@@ -158,8 +158,6 @@ struct s_filechunk* RetrieveEverythingResults()
 	if (EverythingNumResults > 0)
 	{
 		struct s_filechunk* filechunk = root;
-		rsize_t remaining = FILECHUNK_SIZE;
-
 		TCHAR buffer[MAX_PATH_UNICODE];
 		for (DWORD i = 0; i < EverythingNumResults; ++i)
 		{
@@ -178,8 +176,7 @@ struct s_filechunk* RetrieveEverythingResults()
 				{
 					assert(filechunk->remaining_size == 0);
 					HandleFileChunkAvailableSpace(&filechunk);
-					size_t written2 = AddToFilechunk(filechunk, utf8buffer + written, utf8size - written);
-					assert(utf8size == (written + written2));
+					AddToFilechunk(filechunk, utf8buffer + written, utf8size - written);
 				}
 
 				HandleFileChunkAvailableSpace(&filechunk);
