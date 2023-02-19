@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<iconset name="EverythingDopus">
+	<display_name>EverythingDopus</display_name>
+	<copyright>(c) 2023</copyright>
+	<artist>Felipe Guedes da Silveira</artist>
+	<set filename="EverythingDopusCLI-32x32.png" size="large" height="32" width="32">
+		<icon col="1" row="1" name="EverythingDopus" />
+	</set>
+	<set filename="EverythingDopusCLI-22x22.png" size="small" height="22" width="22">
+		<icon col="1" row="1" name="EverythingDopus" />
+	</set>
+</iconset>
