@@ -245,7 +245,7 @@ TCHAR* DopusShowCollection(LPTSTR dopusPath)
 		return NULL;
 
 	ZeroMemory(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE * sizeof(TCHAR));
-	_sntprintf_s(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, TEXT("\"%s\" /cmd go path=coll://Everything/"), dopusPath);
+	_sntprintf_s(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, TEXT("\"%s\" /cmd Go NEWTAB path=coll://Everything/"), dopusPath);
 
 	return commandLine;
 }
