@@ -20,7 +20,7 @@
 #define APP_NAME                TEXT("EverythingDopusCLI")
 #define APP_VERSION             TEXT("v1.0")
 #define APP_COPYRIGHT           TEXT("© 2023 Felipe Guedes da Silveira")
-#define APP_URL                 TEXT("https://github.com/TheZoc/EverythingDopusCLI")
+#define APP_URL                 TEXT("https://github.com/TheZoc/EverythingDopus")
 #define EDC_ERROR_BUFFER_SIZE   1024
 
 
