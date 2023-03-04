@@ -45,6 +45,7 @@ function OnInit(initData)
 function OnEverythingDopusSearch(scriptCmdData)
 {
 	var funcData = scriptCmdData.func;
+	LogMessage("OnEverythingDopusSearch - SearchString: " + funcData.args.SearchString);
 	var searchString = funcData.args.got_arg.SearchString ? funcData.args.SearchString : "";
 	var qualifiers = funcData.qualifiers;
 	var fromKeyboard = funcData.fromkey;
