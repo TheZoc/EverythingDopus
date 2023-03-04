@@ -24,11 +24,17 @@ Directory Opus and enable toolbar customization mode:
 
 ![CustomizeToolbars][7]
 
-Drag the file EverythingDopus.dcf to your toolbar:
+Drag the file `EverythingDopus.dcf` to your toolbar:
 
 ![DragToToolbar][8]
 
-Close the Customize dialog in Directory Opus and you're done!
+Close the Customize dialog in Directory Opus.
+
+Copy the file `EverythingDopus.osp` to `/scripts`. If you have trouble
+accessing that folder, that is just a shortcut for:
+`%AppData%\GPSoftware\Directory Opus\Script AddIns`
+
+And you're done!
 
 The first time you attempt to search using the new toolbar button, it will ask
 for the location of `ed.exe`, just choose it from the directory you previously
