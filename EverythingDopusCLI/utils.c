@@ -234,7 +234,7 @@ TCHAR* DopusPrepareCollection(LPTSTR dopusPath, TCHAR* collectionFilepath)
 		return NULL;
 
 	ZeroMemory(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE * sizeof(TCHAR));
-	_sntprintf_s(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, TEXT("\"%s\" /col import /clear /create /nocheck EverythingDopus \"%s\""), dopusPath, collectionFilepath);
+	_sntprintf_s(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, TEXT("\"%s\" /col import /utf8 /clear /create /nocheck EverythingDopus \"%s\""), dopusPath, collectionFilepath);
 	return commandLine;
 }
 
