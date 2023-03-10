@@ -22,6 +22,7 @@
 #define APP_COPYRIGHT           TEXT("© 2023 Felipe Guedes da Silveira")
 #define APP_URL                 TEXT("https://github.com/TheZoc/EverythingDopus")
 #define EDC_ERROR_BUFFER_SIZE   1024
+#define EV_RESULT_COUNT_WARNING	1000
 
 
 int _tmain(int argc, TCHAR* argv[])
@@ -75,6 +76,18 @@ int _tmain(int argc, TCHAR* argv[])
 	EverythingSearch(searchString);
 	free(searchString);
 
+	// Check to see if we got way too many results - and ask for user confirmation
+	DWORD ResultCount = Everything_GetTotResults();
+	if (ResultCount > EV_RESULT_COUNT_WARNING)
+	{
+		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nNumber of objects found: %lu\nDo you want to continue and open this in Directory Opus?"), APP_NAME, APP_VERSION, ResultCount);
+		if (MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON2) == IDNO)
+		{
+			Everything_CleanUp();
+			return 0;
+		}
+	}
+
 	// Create a temporary to hold the list of files to be sent to directory opus
 	TCHAR* tempFilePath = GenerateTempFile();
 	if (!tempFilePath)
@@ -104,7 +117,6 @@ int _tmain(int argc, TCHAR* argv[])
 		return -1;
 	}
 	free(commandLine);
-	Sleep(500);
 
 	// Prepare show collection dopus command line
 	commandLine = DopusShowCollection(dopusPath);
