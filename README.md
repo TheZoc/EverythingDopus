@@ -1,11 +1,15 @@
 ![EverythingDopus][1] EverythingDopus
 =====================================
 
-A command line interface to display [Everything][2] search results inside
-[Directory Opus][3], enabling the full range of Directory Opus commands to be
-used with the results.
+A command line interface to display [voidtools' Everything][2] search results
+inside a collection in [Directory Opus][3], enabling the full range of Directory
+Opus commands to be used with the results.
 
-You need to have [Everything][2] installed and running to use this utility.
+You need to have [voidtools' Everything][2] installed and running to use this
+utility.
+
+If you find any bug or difficulty using this utility, check the
+[support topic][4] in the Directory Opus forums.
 
 
 ⚙️ Setup
@@ -22,11 +26,11 @@ Administrator permissions to run (i.e. *avoid Program Files*!)
 Once you have the application in a directory in your computer, open it in
 Directory Opus and enable toolbar customization mode:
 
-![CustomizeToolbars][7]
+![CustomizeToolbars][6]
 
 Drag the file `EverythingDopus.dcf` to your toolbar:
 
-![DragToToolbar][8]
+![DragToToolbar][7]
 
 Close the Customize dialog in Directory Opus.
 
@@ -39,6 +43,10 @@ And you're done!
 The first time you attempt to search using the new toolbar button, it will ask
 for the location of `ed.exe`, just choose it from the directory you previously
 extracted the files.
+
+If for some reason you need to change the selected executable (e.g., you pick
+the wrong one), hold `shift` and click the button, and it will ask again for the
+executable path.
 
 
 🖥️ CLI Usage
@@ -62,19 +70,20 @@ ed /searchstring/
 📌 About
 --------
 
-After trying [SearchEverythingCoreCLI][4], I decided to write a similar
+After trying [SearchEverythingCoreCLI][8], I decided to write a similar
 application that suit my needs, seamlessly integrating [Everything][2] and
 [Directory Opus][3] - so this project is heavily inspired by it.
 
-The [Directory Opus script][5] also uses a utility function by [Wowbagger][6]
+The [Directory Opus script][5] also uses a utility function by [Wowbagger][9]
 to aid the selection of the executable from the toolbar.
 
 
 [1]: resources/EverythingDopusCLI-24x24.png
 [2]: https://www.voidtools.com/
 [3]: https://www.gpsoft.com.au/
-[4]: https://github.com/devocalypse/SearchEverythingCoreCLI
+[4]: https://resource.dopus.com/t/everythingdopus-an-utility-to-integrate-everything-with-directory-opus/43844
 [5]: DirectoryOpus/EverythingDopus.js
-[6]: https://resource.dopus.com/u/wowbagger
-[7]: resources/CustomizeToolbars.png
-[8]: resources/DragToToolbar.png
+[6]: resources/CustomizeToolbars.png
+[7]: resources/DragToToolbar.png
+[8]: https://github.com/devocalypse/SearchEverythingCoreCLI
+[9]: https://resource.dopus.com/u/wowbagger
