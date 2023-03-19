@@ -17,18 +17,19 @@
 	#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #endif
 
-#define APP_NAME                TEXT("EverythingDopusCLI")
-#define APP_VERSION             TEXT("v1.2")
-#define APP_TITLE				APP_NAME TEXT(" ") APP_VERSION
-#define APP_COPYRIGHT           TEXT("© 2023 Felipe Guedes da Silveira")
-#define APP_URL                 TEXT("https://github.com/TheZoc/EverythingDopus")
-#define EDC_ERROR_BUFFER_SIZE   1024
-#define EV_RESULT_COUNT_WARNING	1000
+#define APP_NAME					TEXT("EverythingDopusCLI")
+#define APP_VERSION					TEXT("v1.2")
+#define APP_TITLE					APP_NAME TEXT(" ") APP_VERSION
+#define APP_COPYRIGHT				TEXT("© 2023 Felipe Guedes da Silveira")
+#define APP_URL						TEXT("https://github.com/TheZoc/EverythingDopus")
+#define EDC_ERROR_BUFFER_SIZE		1024
+#define EV_RESULT_COUNT_WARNING		1000
+#define MAX_COLLECTION_NAME_SIZE	200
 
 
 int _tmain(int argc, TCHAR* argv[])
 {
-	TCHAR errorBuffer[EDC_ERROR_BUFFER_SIZE * sizeof(TCHAR)];
+	TCHAR errorBuffer[EDC_ERROR_BUFFER_SIZE];
 	if (!IsEverythingRunning())
 	{
 		MessageBox(NULL, TEXT("Everything application isn't running.\nStart it and try again."), APP_TITLE, MB_ICONWARNING | MB_OK);
@@ -70,9 +71,11 @@ int _tmain(int argc, TCHAR* argv[])
 		return -1;
 	}
 
+	// Check if it's a regex search, and remove the slashes at the start and end of the string
+	BOOL regexSearch = CleanRegexSearchString(searchString);
+
 	// Do the search!
 	EverythingSearch(searchString);
-	free(searchString);
 
 	// Check to see if we got way too many results - and ask for user confirmation
 	DWORD ResultCount = Everything_GetTotResults();
@@ -104,8 +107,17 @@ int _tmain(int argc, TCHAR* argv[])
 	// Save file list to a temp file
 	RetrieveAndSaveSearchToFile(tempFilePath);
 
+	// Build Collection name: YYYY-MM-DD HH-MM-SS (regex) search string:
+	TCHAR* collectionName = BuildCollectionString(regexSearch, searchString);
+	if (!collectionName)
+	{
+		MessageBox(NULL, TEXT("Out of memory when attempting to create the collection name."), APP_TITLE, MB_ICONERROR | MB_OK);
+		return -1;
+	}
+	free(searchString);
+
 	// Prepare import collection dopus command line
-	TCHAR* commandLine = DopusPrepareCollection(dopusPath, tempFilePath);
+	TCHAR* commandLine = DopusPrepareCollection(dopusPath, collectionName, tempFilePath);
 	if (!commandLine)
 	{
 		MessageBox(NULL, TEXT("Out of memory when attempting to import the collection."), APP_TITLE, MB_ICONERROR | MB_OK);
@@ -121,7 +133,7 @@ int _tmain(int argc, TCHAR* argv[])
 	free(commandLine);
 
 	// Prepare show collection dopus command line
-	commandLine = DopusShowCollection(dopusPath);
+	commandLine = DopusShowCollection(dopusPath, collectionName);
 	if (!commandLine)
 	{
 		MessageBox(NULL, TEXT("Out of memory when attempting to show the collection."), APP_TITLE, MB_ICONERROR | MB_OK);
@@ -136,6 +148,7 @@ int _tmain(int argc, TCHAR* argv[])
 		return -1;
 	}
 	free(commandLine);
+	free(collectionName);
 
 	Everything_CleanUp();
 

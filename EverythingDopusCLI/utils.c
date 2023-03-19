@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <tchar.h>
+#include <time.h>
 #include <Windows.h>
 #include "utils.h"
 #include "Everything.h"
@@ -124,20 +125,26 @@ TCHAR* BuildSearchRequest(int argc, TCHAR* argv[])
 	return searchString;
 }
 
-void EverythingSearch(TCHAR* searchString)
+BOOL CleanRegexSearchString(TCHAR* searchString)
 {
 	if (!searchString)
-		return;
+		return FALSE;
 
-	TCHAR* actualSearchString = searchString;
-	const size_t len = _tcslen(actualSearchString);
-	if (len > 2 && actualSearchString[0] == '/' && actualSearchString[len - 1] == '/')
+	const size_t len = _tcslen(searchString);
+	if (len > 2 && searchString[0] == '/' && searchString[len - 1] == '/')
 	{
-		actualSearchString[len - 1] = '\0';
-		++actualSearchString;
+		memmove_s(searchString, (len + 1) * sizeof(TCHAR), searchString + 1, (len) * sizeof(TCHAR));
+		searchString[len - 2] = searchString[len - 1] = '\0';
 		Everything_SetRegex(TRUE);
+		return TRUE;
 	}
-	Everything_SetSearch(actualSearchString);
+
+	return FALSE;
+}
+
+void EverythingSearch(TCHAR* searchString)
+{
+	Everything_SetSearch(searchString);
 	Everything_Query(TRUE);
 }
 
@@ -227,25 +234,78 @@ void WriteFilechunkToFile(TCHAR* outFilepath, struct s_filechunk* filechunk)
 	}
 }
 
-TCHAR* DopusPrepareCollection(LPTSTR dopusPath, TCHAR* collectionFilepath)
+TCHAR* BuildDateString()
+{
+	// (YYYY-MM-DD HH-MM-SS)
+	const int bufferSize = 22;
+	TCHAR* outDate = (TCHAR*)malloc(bufferSize * sizeof(TCHAR));
+	if (!outDate)
+		return NULL;
+
+	time_t rawtime;
+	struct tm timeinfo;
+
+	time(&rawtime);
+	localtime_s(&timeinfo, &rawtime);
+
+	_tcsftime(outDate, bufferSize, TEXT("(%Y-%m-%d %H-%M-%S)"), &timeinfo);
+	return outDate;
+}
+
+TCHAR* BuildCollectionString(BOOL isRegex, TCHAR* searchString)
+{
+	// Build the date string
+	TCHAR* dateString = BuildDateString();
+
+	// Needed buffer size
+	const size_t dateSize = _tcslen(dateString);
+	const size_t regexSize = isRegex ? 8 : 0;
+	const size_t searchStringSize = _tcslen(searchString);
+	const size_t bufferSize = dateSize + regexSize + searchStringSize + 3; // 2 spaces + 1 null terminator
+
+	// Allocate new string
+	TCHAR* collectionName = (TCHAR*)malloc(bufferSize * sizeof(TCHAR));
+	if (!collectionName)
+		return NULL;
+
+	// Copy the date string
+	size_t counter = dateSize;
+	_tcscpy_s(collectionName, bufferSize, dateString);
+	collectionName[counter++] = TEXT(' ');
+
+	// Copy the regex string if necessary
+	if (isRegex)
+	{
+		_tcscpy_s(collectionName + counter, bufferSize - counter, TEXT("(regex) "));
+		counter += 8;
+	}
+
+	// Copy the search string
+	_tcscpy_s(collectionName + counter, bufferSize - counter, searchString);
+
+	free(dateString);
+	return collectionName;
+}
+
+TCHAR* DopusPrepareCollection(LPTSTR dopusPath, TCHAR* collectionName, TCHAR* collectionFilepath)
 {
 	TCHAR* commandLine = (TCHAR*)malloc(EDC_PROCESS_COMMAND_LINE_MAX_SIZE * sizeof(TCHAR));
 	if (!commandLine)
 		return NULL;
 
 	ZeroMemory(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE * sizeof(TCHAR));
-	_sntprintf_s(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, TEXT("\"%s\" /col import /utf8 /clear /create /nocheck EverythingDopus \"%s\""), dopusPath, collectionFilepath);
+	_sntprintf_s(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, TEXT("\"%s\" /col import /utf8 /clear /create /nocheck \"EverythingDopus/%s\" \"%s\""), dopusPath, collectionName, collectionFilepath);
 	return commandLine;
 }
 
-TCHAR* DopusShowCollection(LPTSTR dopusPath)
+TCHAR* DopusShowCollection(LPTSTR dopusPath, TCHAR* collectionName)
 {
 	TCHAR* commandLine = (TCHAR*)malloc(EDC_PROCESS_COMMAND_LINE_MAX_SIZE * sizeof(TCHAR));
 	if (!commandLine)
 		return NULL;
 
 	ZeroMemory(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE * sizeof(TCHAR));
-	_sntprintf_s(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, TEXT("\"%s\" /acmd Go NEWTAB findexisting path=coll://EverythingDopus/"), dopusPath);
+	_sntprintf_s(commandLine, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, EDC_PROCESS_COMMAND_LINE_MAX_SIZE, TEXT("\"%s\" /acmd Go NEWTAB findexisting path=\"coll://EverythingDopus/%s\""), dopusPath, collectionName);
 
 	return commandLine;
 }

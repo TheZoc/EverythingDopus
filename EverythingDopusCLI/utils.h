@@ -31,6 +31,13 @@ extern "C"
 	TCHAR* BuildSearchRequest(int argc, TCHAR* argv[]);
 
 	/**
+	 * Clean up the string in case of it being a regex search (enclosed /between/ slashes)
+	 * Also sets Everything to do a regex search.
+	 * Returns TRUE if it was a regex string
+	 */
+	BOOL CleanRegexSearchString(TCHAR* searchString);
+
+	/**
 	 * Prepare everything SetSearch request.
 	 * This function checks for SearchEverythingCoreCLI regex style strings, for compatibility purposes.
 	 */
@@ -55,16 +62,26 @@ extern "C"
 	void WriteFilechunkToFile(TCHAR* outFilepath, struct s_filechunk* filechunk);
 
 	/**
+	 * Allocates a new string for the current date and time to be used as a prefix to the collection name
+	 */
+	TCHAR* BuildDateString();
+
+	/**
+	 * Build the collection name
+	 */
+	TCHAR* BuildCollectionString(BOOL isRegex, TCHAR* searchString);
+
+	/**
 	 * Build dopusrt.exe command line in the format:
 	 * "C:\Program Files\GPSoftware\Directory Opus\dopusrt.exe" /col import /clear /create /nocheck Everything "%temp%\tempfile"
 	 */
-	TCHAR* DopusPrepareCollection(LPTSTR dopusPath, TCHAR* collectionFilepath);
+	TCHAR* DopusPrepareCollection(LPTSTR dopusPath, TCHAR* collectionName, TCHAR* collectionFilepath);
 
 	/**
 	 * Show collection imported to Directory Opus. Format:
 	 * "C:\Program Files\GPSoftware\Directory Opus\dopusrt.exe" /cmd go path=coll://Everything/
 	 */
-	TCHAR* DopusShowCollection(LPTSTR dopusPath);
+	TCHAR* DopusShowCollection(LPTSTR dopusPath, TCHAR* collectionName);
 
 	/**
 	 * Execute commands with a hidden console
