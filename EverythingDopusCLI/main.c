@@ -78,6 +78,14 @@ int _tmain(int argc, TCHAR* argv[])
 
 	// Check to see if we got way too many results - and ask for user confirmation
 	DWORD ResultCount = Everything_GetTotResults();
+	if (!ResultCount)
+	{
+		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nNo results were found."), APP_NAME, APP_VERSION);
+		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONINFORMATION | MB_OK);
+		Everything_CleanUp();
+		return 0;
+	}
+
 	if (ResultCount > EV_RESULT_COUNT_WARNING)
 	{
 		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nNumber of objects found: %lu\nDo you want to continue and open this in Directory Opus?"), APP_NAME, APP_VERSION, ResultCount);
