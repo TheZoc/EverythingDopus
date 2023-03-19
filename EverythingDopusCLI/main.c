@@ -19,6 +19,7 @@
 
 #define APP_NAME                TEXT("EverythingDopusCLI")
 #define APP_VERSION             TEXT("v1.2")
+#define APP_TITLE				APP_NAME TEXT(" ") APP_VERSION
 #define APP_COPYRIGHT           TEXT("© 2023 Felipe Guedes da Silveira")
 #define APP_URL                 TEXT("https://github.com/TheZoc/EverythingDopus")
 #define EDC_ERROR_BUFFER_SIZE   1024
@@ -30,16 +31,14 @@ int _tmain(int argc, TCHAR* argv[])
 	TCHAR errorBuffer[EDC_ERROR_BUFFER_SIZE * sizeof(TCHAR)];
 	if (!IsEverythingRunning())
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nEverything application isn't running.\nStart it and try again."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONWARNING | MB_OK);
+		MessageBox(NULL, TEXT("Everything application isn't running.\nStart it and try again."), APP_TITLE, MB_ICONWARNING | MB_OK);
 		return -1;
 	}
 
 	LPTSTR dopusPath = GetDopusRTPath();
 	if (!dopusPath)
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nUnable to find Directory Opus path in Windows Registry.\nReinstalling it might fix the issue."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONWARNING | MB_OK);
+		MessageBox(NULL, TEXT("Unable to find Directory Opus path in Windows Registry.\nReinstalling it might fix the issue."), APP_TITLE, MB_ICONWARNING | MB_OK);
 		return -1;
 	}
 
@@ -56,7 +55,7 @@ int _tmain(int argc, TCHAR* argv[])
 			TEXT("Or setup Directory Opus with the toolbar button.\n\n")
 			TEXT("Would you like to visit the website for more info?\n")
 			, APP_NAME, APP_VERSION, APP_COPYRIGHT, exeName, exeName);
-		if (MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON2) == IDYES)
+		if (MessageBox(NULL, errorBuffer, APP_TITLE, MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON2) == IDYES)
 		{
 			ShellExecute(NULL, TEXT("open"), APP_URL, NULL, NULL, SW_SHOWNORMAL);
 		}
@@ -67,8 +66,7 @@ int _tmain(int argc, TCHAR* argv[])
 	TCHAR* searchString = BuildSearchRequest(argc, argv);
 	if (!searchString)
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nOut of memory when building the search string."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONERROR | MB_OK);
+		MessageBox(NULL, TEXT("Out of memory when building the search string."), APP_TITLE, MB_ICONERROR | MB_OK);
 		return -1;
 	}
 
@@ -80,16 +78,15 @@ int _tmain(int argc, TCHAR* argv[])
 	DWORD ResultCount = Everything_GetTotResults();
 	if (!ResultCount)
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nNo results were found."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONINFORMATION | MB_OK);
+		MessageBox(NULL, TEXT("No results were found."), APP_TITLE, MB_ICONINFORMATION | MB_OK);
 		Everything_CleanUp();
 		return 0;
 	}
 
 	if (ResultCount > EV_RESULT_COUNT_WARNING)
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nNumber of objects found: %lu\nDo you want to continue and open this in Directory Opus?"), APP_NAME, APP_VERSION, ResultCount);
-		if (MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON2) == IDNO)
+		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("Number of objects found: %lu\nDo you want to continue and open this in Directory Opus?"), ResultCount);
+		if (MessageBox(NULL, errorBuffer, APP_TITLE, MB_ICONINFORMATION | MB_YESNO | MB_DEFBUTTON2) == IDNO)
 		{
 			Everything_CleanUp();
 			return 0;
@@ -100,8 +97,7 @@ int _tmain(int argc, TCHAR* argv[])
 	TCHAR* tempFilePath = GenerateTempFile();
 	if (!tempFilePath)
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nError trying to allocate an intermediary collection file."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONERROR | MB_OK);
+		MessageBox(NULL, TEXT("Error trying to allocate an intermediary collection file."), APP_TITLE, MB_ICONERROR | MB_OK);
 		return -1;
 	}
 
@@ -112,16 +108,14 @@ int _tmain(int argc, TCHAR* argv[])
 	TCHAR* commandLine = DopusPrepareCollection(dopusPath, tempFilePath);
 	if (!commandLine)
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nOut of memory when attempting to import the collection."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONERROR | MB_OK);
+		MessageBox(NULL, TEXT("Out of memory when attempting to import the collection."), APP_TITLE, MB_ICONERROR | MB_OK);
 		return -1;
 	}
 
 	// Run Dopus prepare collection
 	if (!RunSyncHiddenApp(commandLine))
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nUnable to import collection into Directory Opus."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONERROR | MB_OK);
+		MessageBox(NULL, TEXT("Unable to import collection into Directory Opus."), APP_TITLE, MB_ICONERROR | MB_OK);
 		return -1;
 	}
 	free(commandLine);
@@ -130,8 +124,7 @@ int _tmain(int argc, TCHAR* argv[])
 	commandLine = DopusShowCollection(dopusPath);
 	if (!commandLine)
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nOut of memory when attempting to show the collection."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONERROR | MB_OK);
+		MessageBox(NULL, TEXT("Out of memory when attempting to show the collection."), APP_TITLE, MB_ICONERROR | MB_OK);
 		return -1;
 	}
 	free(dopusPath);
@@ -139,8 +132,7 @@ int _tmain(int argc, TCHAR* argv[])
 	// Run dopus show collection
 	if (!RunSyncHiddenApp(commandLine))
 	{
-		_sntprintf_s(errorBuffer, EDC_ERROR_BUFFER_SIZE, EDC_ERROR_BUFFER_SIZE, TEXT("%s %s\n================\n\nUnable to show collection in Directory Opus."), APP_NAME, APP_VERSION);
-		MessageBox(NULL, errorBuffer, APP_NAME, MB_ICONERROR | MB_OK);
+		MessageBox(NULL, TEXT("Unable to show collection in Directory Opus."), APP_TITLE, MB_ICONERROR | MB_OK);
 		return -1;
 	}
 	free(commandLine);
