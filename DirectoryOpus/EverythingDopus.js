@@ -47,6 +47,99 @@ function OnInit(initData)
 	searchDlgCmd.template = "";
 }
 
+// Implement the EverythingDopus command
+function OnEverythingDopusSearch(scriptCmdData)
+{
+	var exePath = RetrieveEverythingDopusPath(scriptCmdData);
+	if (exePath == null)
+	{
+		DOpus.OutputString(scriptCmdData.func,"OnEverythingDopusSearch() - The executable 'ed.exe' for application EverythingDopus could not be found. Try running the script again.");
+		return;
+	}
+
+	// Extract the search string
+	LogMessage("OnEverythingDopusSearch() - SearchString: " + scriptCmdData.func.args.SearchString);
+	var searchString = scriptCmdData.func.args.got_arg.SearchString ? scriptCmdData.func.args.SearchString : "";
+
+	// Build the command line
+	var commandLine = exePath + " " + searchString;
+	LogMessage("OnEverythingDopusSearch() - Command line: " + commandLine);
+	scriptCmdData.func.command.runcommand(commandLine);
+}
+
+// Implement the EverythingDopusDialog command
+function OnEverythingDopusDialog(scriptCmdData)
+{
+	DumpSearchHistory();
+	var exePath = RetrieveEverythingDopusPath(scriptCmdData);
+	if (exePath == null)
+	{
+		DOpus.OutputString(scriptCmdData.func,"OnEverythingDopusDialog() - The executable 'ed.exe' for application EverythingDopus could not be found. Try running the script again.");
+		return;
+	}
+
+	// Create the user dialog
+	var dlg = DOpus.Dlg;
+	dlg.title = "EverythingDopus";
+	dlg.template = "dlgEverythingDopusSearchDialog";
+	dlg.detach = true;
+	dlg.Create();
+	dlg.Control("txtTitle").style = "b";
+	dlg.Control("txtIcon").label = Script.LoadImage("EverythingDopusCLI-32x32.png");
+
+	// Populate the search combo box
+	for (var i = 0; i < 10; ++i)
+	{
+		var currentItem = "EverythingDopusHistory" + i.toString();
+		if (!DOpus.vars.Exists(currentItem))
+		{
+			break;
+		}
+		dlg.Control("cmbSearch").AddItem(DOpus.Vars.Get(currentItem));
+	}
+
+	// Select the first item in the combobox, if available
+	if (dlg.Control("cmbSearch").count > 0)
+	{
+		dlg.Control("cmbSearch").SelectItem(0)
+	}
+
+	// Dialog message loop
+	for (var msg = dlg.GetMsg(); msg.result; msg = dlg.GetMsg())
+	{
+		// Event handler snippet
+		// DOpus.Output("Msg Event = " + msg.event);
+	}
+
+	var searchString = ""
+	switch(dlg.result)
+	{
+	case 1: // Ok
+		LogMessage("Search Pressed");
+		searchString = dlg.Control("cmbSearch").label;
+		break;
+	case 2: // Search local folder only
+		searchString = "\"" + scriptCmdData.func.sourcetab.path + "\" " + dlg.Control("cmbSearch").label;
+		LogMessage("Search Folder Pressed - searchString: " + searchString);
+		break;
+	default: // Everything else
+		LogMessage("Return code = " + dlg.result);
+		return;
+	};
+
+	LogMessage("OnEverythingDopusDialog() - searchString: " + searchString);
+	AddSearchToHistory(searchString);
+
+	var commandLine = exePath + " " + searchString;
+	LogMessage("OnEverythingDopusDialog() - Command line: " + commandLine);
+	scriptCmdData.func.command.runcommand(commandLine);
+}
+
+/**
+ * Utility Functions
+ */
+
+// Retrieves the path for ex.exe, stored in dopus variables
 function RetrieveEverythingDopusPath(scriptCmdData)
 {
 	// Check if the user is holding shift when they clicked the button
@@ -67,73 +160,79 @@ function RetrieveEverythingDopusPath(scriptCmdData)
 	return exePath;
 }
 
-// Implement the EverythingDopus command
-function OnEverythingDopusSearch(scriptCmdData)
+// Add an entry to the search history, stored in dopus variables
+function AddSearchToHistory(searchString)
 {
-	var exePath = RetrieveEverythingDopusPath(scriptCmdData);
-	if (exePath == null)
+	LogMessage("AddSearchToHistory() - searchString: " + searchString);
+
+	// Keep the last 10 search entries
+	var doVars = DOpus.vars;
+	var foundIndex = -1;
+	var lastValidIndex = -1;
+	for (var i = 0; i < 10; ++i)
 	{
-		DOpus.OutputString(scriptCmdData.func,"OnEverythingDopusSearch() - The executable 'ed.exe' for application EverythingDopus could not be found. Try running the script again.");
-		return;
+		// Check if we're at the end of the existing history
+		var currentItem = "EverythingDopusHistory" + i.toString();
+		lastValidIndex = i;
+		if (!doVars.Exists(currentItem))
+		{
+			LogMessage("AddSearchToHistory() - last valid history index: " + lastValidIndex);
+			break;
+		}
+		else if (doVars.Get(currentItem) == searchString)
+		{
+			LogMessage("AddSearchToHistory() - doVars.Get(\"" + currentItem + "\"): " + doVars.Get(currentItem));
+			foundIndex = i;
+			break;
+		}
 	}
 
-	// Extract the search string
-	LogMessage("OnEverythingDopusSearch()- SearchString: " + scriptCmdData.func.args.SearchString);
-	var searchString = scriptCmdData.func.args.got_arg.SearchString ? scriptCmdData.func.args.SearchString : "";
+  // If we found it, put it on the top of the stack
+	if (foundIndex != -1)
+	{
+		LogMessage("AddSearchToHistory() - searchString found in index " + i + " - Moving to the top of the history");
+		ShiftSearchHistoryDown(foundIndex);
+	}
 
-	// Build the command line
-	var commandLine = exePath + " " + searchString;
-	LogMessage("OnEverythingDopusSearch()- Command line: " + commandLine);
-	scriptCmdData.func.command.runcommand(commandLine);
+	// If we have valid indices, move everything down in the stack by 1, overwriting the last entry
+	else if (lastValidIndex > -1)
+	{
+		LogMessage("AddSearchToHistory() - Last valid index is " + lastValidIndex + ", shifting history down.");
+		ShiftSearchHistoryDown(lastValidIndex);
+	}
+
+	LogMessage("AddSearchToHistory() - Setting EverythingDopusHistory0 to the search string");
+	doVars.Set("EverythingDopusHistory0", searchString);
 }
 
-// Implement the EverythingDopusDialog command
-function OnEverythingDopusDialog(scriptCmdData)
+// This function shifts everything in the search history down.
+// It starts at the given index and move everything down until the top of the stack.
+function ShiftSearchHistoryDown(startIndex)
 {
-	var exePath = RetrieveEverythingDopusPath(scriptCmdData);
-	if (exePath == null)
+	for (var i = startIndex; i > 0; --i)
 	{
-		DOpus.OutputString(scriptCmdData.func,"OnEverythingDopusDialog() - The executable 'ed.exe' for application EverythingDopus could not be found. Try running the script again.");
-		return;
+		DOpus.vars.Set("EverythingDopusHistory" + i.toString(), DOpus.vars.Get("EverythingDopusHistory" + (i-1).toString()));
 	}
+}
 
-	// Create the user dialog
-	var dlg = DOpus.Dlg;
-	dlg.title = "EverythingDopus";
-	dlg.template = "dlgEverythingDopusSearchDialog";
-	dlg.detach = true;
-	dlg.Create();
-	dlg.Control("txtTitle").style = "b";
-	dlg.Control("txtIcon").label = Script.LoadImage("EverythingDopusCLI-32x32.png");
-
-	// Dialog message loop
-	for (var msg = dlg.GetMsg(); msg.result; msg = dlg.GetMsg())
-	{
-		// Event handler snippet
-		// DOpus.Output("Msg Event = " + msg.event);
-	}
-
-	var searchString = ""
-	switch(dlg.result)
-	{
-	case 1: // Ok
-		LogMessage("Search Pressed");
-		searchString = dlg.Control("cmbSearch").label;
-		break;
-	case 2: // Search local folder only
-		searchString = "\"" + scriptCmdData.func.sourcetab.path + "\" " + dlg.Control("cmbSearch").label;
-		DOpus.Output("Search Folder Pressed - searchString: " + searchString);
-		break;
-	default: // Everything else
-		DOpus.Output("Return code = " + dlg.result);
+// Outputs all search history variables and their data to the console
+function DumpSearchHistory()
+{
+	if (!Script.config.DEBUG && !doLogCmd.IsSet(Script.config.DebugEnableVar))
 		return;
-	};
 
-	LogMessage("OnEverythingDopusDialog()- searchString:" + searchString);
-
-	var commandLine = exePath + " " + searchString;
-	LogMessage("OnEverythingDopusDialog()- Command line: " + commandLine);
-	scriptCmdData.func.command.runcommand(commandLine);
+	for (var i = 0; i < 10; ++i)
+	{
+		var currentItem = "EverythingDopusHistory" + i.toString();
+		if (!DOpus.vars.Exists(currentItem))
+		{
+			DOpus.OutputString(currentItem + ": does not exist yet.");
+		}
+		else
+		{
+			DOpus.OutputString(currentItem + ": " + DOpus.Vars.Get(currentItem));
+		}
+	}
 }
 
 var doLogCmd = DOpus.NewCommand;
@@ -210,7 +309,7 @@ function getResourcePathFromGlobalVar(name, filename, varKey, forceUserRequest)
 		}
 	}
 
-	LogMessage("OnEverythingDopusSearch()- Path for " + name + " [key: " + varKey + "] = " + resourcePath);
+	LogMessage("OnEverythingDopusSearch() - Path for " + name + " [key: " + varKey + "] = " + resourcePath);
 
 	return resourcePath;
 }
