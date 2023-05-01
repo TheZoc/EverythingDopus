@@ -17,7 +17,7 @@
 function OnInit(initData)
 {
 	initData.name = "EverythingDopus";
-	initData.version = "2.0";
+	initData.version = "2.0 beta1";
 	initData.copyright = "(c) 2023 Felipe Guedes da Silveira";
 	initData.url = "https://github.com/TheZoc/EverythingDopus";
 	initData.desc = "";
