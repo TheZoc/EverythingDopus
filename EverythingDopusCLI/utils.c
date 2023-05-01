@@ -283,6 +283,25 @@ TCHAR* BuildCollectionString(BOOL isRegex, TCHAR* searchString)
 	// Copy the search string
 	_tcscpy_s(collectionName + counter, bufferSize - counter, searchString);
 
+	// Remove invalid characters from the collection name
+	TCHAR* pCollectionName = collectionName;
+	while (*pCollectionName != TEXT('\0'))
+	{
+		if (*pCollectionName == '<'
+			|| *pCollectionName == '>'
+			|| *pCollectionName == ':'
+			|| *pCollectionName == '"'
+			|| *pCollectionName == '/'
+			|| *pCollectionName == '\\'
+			|| *pCollectionName == '|'
+			|| *pCollectionName == '?'
+			|| *pCollectionName == '*')
+		{
+			*pCollectionName = TEXT('_');
+		}
+		++pCollectionName;
+	}
+
 	free(dateString);
 	return collectionName;
 }
