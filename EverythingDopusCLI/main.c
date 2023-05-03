@@ -64,7 +64,11 @@ int _tmain(int argc, TCHAR* argv[])
 		return 0;
 	}
 
-	TCHAR* searchString = BuildSearchRequest(argc, argv);
+	// Use custom version of CommandLineToArgv, to keep the quotes from command line
+	int argc_quoted;
+	LPWSTR* argv_quoted = CommandLineToArgvKeepQuotes(GetCommandLine(), &argc_quoted);
+	TCHAR* searchString = BuildSearchRequest(argc_quoted, argv_quoted);
+	LocalFree(argv_quoted);
 	if (!searchString)
 	{
 		MessageBox(NULL, TEXT("Out of memory when building the search string."), APP_TITLE, MB_ICONERROR | MB_OK);
