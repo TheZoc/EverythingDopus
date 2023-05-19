@@ -436,7 +436,7 @@ LPWSTR* CommandLineToArgvKeepQuotesW(const LPWSTR cmdline, int* numargs)
 		else if (*s == '"')
 		{
 			/* '"' */
-			if ((bcount & 1) == 0)
+//			if ((bcount & 1) == 0)         // Ignore quote escaping
 				qcount++; /* unescaped '"' */
 			s++;
 			bcount = 0;
@@ -538,16 +538,18 @@ LPWSTR* CommandLineToArgvKeepQuotesW(const LPWSTR cmdline, int* numargs)
 				 */
 				d -= bcount / 2;
 				qcount++;
+				*d++ = '"';                // Ignore quote escaping
 			}
 			else
 			{
 				/* Preceded by an odd number of '\', this is half that
 				 * number of '\' followed by a '"'
 				 */
-				d = d - bcount / 2 - 1;
+				// d = d - bcount / 2 - 1; // Ignore quote escaping
+				qcount++;                  // Ignore quote escaping
 				*d++ = '"';
 			}
-			*d++ = *s++;	// This is what makes it keep the quotes. Originally: s++
+			s++;
 			bcount = 0;
 			/* Now count the number of consecutive quotes. Note that qcount
 			 * already takes into account the opening quote if any, as well as
@@ -667,7 +669,7 @@ LPSTR* CommandLineToArgvKeepQuotesA(const LPSTR cmdline, int* numargs)
 		else if (*s == '"')
 		{
 			/* '"' */
-			if ((bcount & 1) == 0)
+//			if ((bcount & 1) == 0)         // Ignore quote escaping
 				qcount++; /* unescaped '"' */
 			s++;
 			bcount = 0;
@@ -769,16 +771,18 @@ LPSTR* CommandLineToArgvKeepQuotesA(const LPSTR cmdline, int* numargs)
 				 */
 				d -= bcount / 2;
 				qcount++;
+				*d++ = '"';                // Ignore quote escaping
 			}
 			else
 			{
 				/* Preceded by an odd number of '\', this is half that
 				 * number of '\' followed by a '"'
 				 */
-				d = d - bcount / 2 - 1;
+				// d = d - bcount / 2 - 1; // Ignore quote escaping
+				qcount++;                  // Ignore quote escaping
 				*d++ = '"';
 			}
-			*d++ = *s++;	// This is what makes it keep the quotes. Originally: s++
+			s++;
 			bcount = 0;
 			/* Now count the number of consecutive quotes. Note that qcount
 			 * already takes into account the opening quote if any, as well as
