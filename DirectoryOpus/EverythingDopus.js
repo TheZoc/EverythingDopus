@@ -119,9 +119,12 @@ function OnEverythingDopusDialog(scriptCmdData)
 		searchString = dlg.Control("cmbSearch").label;
 		break;
 	case 2: // Search local folder only
-		searchString = "\"" + scriptCmdData.func.sourcetab.path + "\" " + dlg.Control("cmbSearch").label;
+		searchString = "\"" + scriptCmdData.func.sourcetab.path + "\\\" " + dlg.Control("cmbSearch").label;
 		LogMessage("Search Folder Pressed - searchString: " + searchString);
 		break;
+	case 3: // Clear Search History
+		ClearSearchHistory();
+		return;
 	default: // Everything else
 		LogMessage("Return code = " + dlg.result);
 		return;
@@ -212,6 +215,16 @@ function ShiftSearchHistoryDown(startIndex)
 	for (var i = startIndex; i > 0; --i)
 	{
 		DOpus.vars.Set("EverythingDopusHistory" + i.toString(), DOpus.vars.Get("EverythingDopusHistory" + (i-1).toString()));
+	}
+}
+
+// Clear the search history
+function ClearSearchHistory()
+{
+	LogMessage("Clearing search history");
+	for (var i = 0; i < 10; ++i)
+	{
+		DOpus.vars.Delete("EverythingDopusHistory"+ i.toString());
 	}
 }
 
@@ -325,6 +338,7 @@ function getResourcePathFromGlobalVar(name, filename, varKey, forceUserRequest)
 			<control close="0" height="14" name="btnCancel" title="&Cancel" type="button" width="62" x="252" y="54" />
 			<control close="1" default="yes" height="14" name="btnOK" title="&Search" type="button" width="62" x="186" y="54" />
 			<control close="2" height="14" name="btnLocalSearch" title="Search &Folder" type="button" width="62" x="120" y="54" />
+			<control close="3" height="14" name="btnClearHistory" title="Clear &History" type="button" width="62" x="6" y="54" />
 		</dialog>
 	</resource>
 </resources>
