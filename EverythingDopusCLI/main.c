@@ -18,7 +18,7 @@
 #endif
 
 #define APP_NAME					TEXT("EverythingDopusCLI")
-#define APP_VERSION					TEXT("v2.0 beta4")
+#define APP_VERSION					TEXT("v2.0")
 #define APP_TITLE					APP_NAME TEXT(" ") APP_VERSION
 #define APP_COPYRIGHT				TEXT("© 2023 Felipe Guedes da Silveira")
 #define APP_URL						TEXT("https://github.com/TheZoc/EverythingDopus")
