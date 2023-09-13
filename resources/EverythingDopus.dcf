@@ -1,27 +1,15 @@
 <?xml version="1.0"?>
-<button backcol="none" display="icon" label_pos="left" textcol="none" type="three_button">
+<button backcol="none" display="icon" label_pos="right" textcol="none" type="three_button">
 	<label>EverythingDopus</label>
-	<icon1>#EverythingDopus:EverythingDopus</icon1>
+	<icon1>#EverythingDopus</icon1>
 	<button backcol="none" display="both" hotkey="shift+f3" label_pos="right" textcol="none">
 		<label>EverythingDopus</label>
-		<icon1>#EverythingDopus:EverythingDopus</icon1>
+		<icon1>#EverythingDopus</icon1>
 		<function type="normal">
-			<instruction>@nofilenamequoting</instruction>
-			<instruction>@set search={dlgstring|Enter Everything Search Query\nYou can do a /regex search \d\d\d/ using slashes}</instruction>
-			<instruction>EverythingDopus &quot;{$search}&quot;</instruction>
+			<instruction>EverythingDopusDialog</instruction>
 		</function>
 	</button>
 	<button backcol="none" display="both" hotkey="ctrl+f3" label_pos="right" textcol="none">
-		<label>EverythingDopus (Current Folder)</label>
-		<icon1>#EverythingDopus:EverythingDopus</icon1>
-		<function type="normal">
-			<instruction>@nofilenamequoting</instruction>
-			<instruction>@set xsrc={sourcepath$|noterm}</instruction>
-			<instruction>@set search={dlgstring|Enter Everything Search Query\nYou can do a /regex search \d\d\d/ using slashes\n\nNOTE: Searching current folder only!}</instruction>
-			<instruction>EverythingDopus &quot;{$xsrc} {$search}&quot;</instruction>
-		</function>
-	</button>
-	<button backcol="none" display="both" hotkey="alt+f3" label_pos="right" textcol="none">
 		<label>EverythingDopus (Clipboard)</label>
 		<icon1>#EverythingDopus:EverythingDopus</icon1>
 		<function type="normal">

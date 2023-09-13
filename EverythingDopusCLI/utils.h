@@ -89,6 +89,22 @@ extern "C"
 	 */
 	BOOL RunSyncHiddenApp(TCHAR* commandLine);
 
+	/**
+	 * Custom implementation of CommandLineToArgvW() that doesn't remove quotes from arguments
+	 */
+	LPWSTR* CommandLineToArgvKeepQuotesW(const LPWSTR cmdline, int* numargs);
+
+	/**
+	 * Custom implementation of CommandLineToArgvA() that doesn't remove quotes from arguments
+	 */
+	LPSTR* CommandLineToArgvKeepQuotesA(const LPSTR cmdline, int* numargs);
+
+	/**
+	 * TCHAR version of CommandLineToArgvKeepQuotes()
+	 */
+	LPTSTR* CommandLineToArgvKeepQuotes(const LPTSTR cmdline, int* numargs);
+
+
 #ifdef __cplusplus
 };
 #endif // __cplusplus

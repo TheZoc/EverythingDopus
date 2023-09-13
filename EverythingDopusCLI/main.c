@@ -18,7 +18,7 @@
 #endif
 
 #define APP_NAME					TEXT("EverythingDopusCLI")
-#define APP_VERSION					TEXT("v1.2")
+#define APP_VERSION					TEXT("v2.0")
 #define APP_TITLE					APP_NAME TEXT(" ") APP_VERSION
 #define APP_COPYRIGHT				TEXT("© 2023 Felipe Guedes da Silveira")
 #define APP_URL						TEXT("https://github.com/TheZoc/EverythingDopus")
@@ -64,7 +64,11 @@ int _tmain(int argc, TCHAR* argv[])
 		return 0;
 	}
 
-	TCHAR* searchString = BuildSearchRequest(argc, argv);
+	// Use custom version of CommandLineToArgv, to keep the quotes from command line
+	int argc_quoted;
+	LPWSTR* argv_quoted = CommandLineToArgvKeepQuotes(GetCommandLine(), &argc_quoted);
+	TCHAR* searchString = BuildSearchRequest(argc_quoted, argv_quoted);
+	LocalFree(argv_quoted);
 	if (!searchString)
 	{
 		MessageBox(NULL, TEXT("Out of memory when building the search string."), APP_TITLE, MB_ICONERROR | MB_OK);
